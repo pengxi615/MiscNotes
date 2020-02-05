@@ -1,6 +1,11 @@
 ﻿*Workbench使用说明*
 
-** 1. 运行说明
+** 1. 工具介绍
+Workbench是独立部署的数据同步客户端，可将Excel文件、内网数据库中的数据自动智能地传送到观远数据平台
+
+
+
+** 2. 运行说明
 运行环境需要 java 1.8 版本.
 
   1. 解压 workbench.zip后, 会出现如下内容:
@@ -17,7 +22,7 @@ java -Xmx800m -jar server-0.0.1-SNAPSHOT.jar
      #+END_SRC
      本例中是限制java heap内存的最大使用量为 800 MB
 
-** 2. 配置文件说明
+** 3. 配置文件说明
 在 Guandata_Workbench 根目录下,有一个配置文件: settings.json 文件, 下面将分节来介绍各个部分
 
 #+BEGIN_SRC javascript
@@ -79,7 +84,7 @@ Note: 我们在JSON的基础上加入了 "注释"支持: 可以把注释写在 /
 
 *Note*: 目前主要是因为我们底层使用的 jackson 库: https://github.com/FasterXML/jackson 还不支持这些 "Trailing_Comma", 但是在其下一个版本(2.9)中, 将会支持, 到时我们就不会有上面的这么容易出错的2个"多余的逗号"的问题了
 
-*** 2.1 guandata 部分
+*** 3.1 guandata 部分
 本部分是配置文件中的:
 #+BEGIN_SRC javascript
 {
@@ -100,7 +105,7 @@ Note: 我们在JSON的基础上加入了 "注释"支持: 可以把注释写在 /
 
 这里是基本信息, 比较重要的一点是: 输入的用户需要具有"管理员权限", 否则, 会导致无法创建data source
 
-*** 2.2 JDBC数据源部分
+*** 3.2 JDBC数据源部分
 本部分是数据库相关部分. 目前主要支持3种数据库 (如果用户有其它jdbc数据库的需要, 我们可以快速添加):
   - mysql
   - postgresql
@@ -124,7 +129,7 @@ Note: 我们在JSON的基础上加入了 "注释"支持: 可以把注释写在 /
   - username: 数据库的用户名
   - password: 数据库的密码
 
-*** 2.3 定时调度
+*** 3.3 定时调度
 对于JDBC数据源, 我们一般都是配置为定时任务, 每天夜里导入前一天的数据. 那么需要我们自定义"定时任务".
 
 *NOTE*: 本程序中假设客户的机器上的时区已经设置为正确的本地时间, 比如: 对于中国的公司, 一般机器上都设置为了"北京时间", 以及的定时任务配置时, 就是采用的机器的本地时间
@@ -163,7 +168,7 @@ Note: 我们在JSON的基础上加入了 "注释"支持: 可以把注释写在 /
 
 具体的使用方法请参考下面的案例
 
-*** 2.4 SQL模板中需要的输入参数
+*** 3.4 SQL模板中需要的输入参数
 对于JDBC数据源, 我们有了"定时调度", 但是有个问题, 每天的sql是跟时间有关的, 我们怎么才能配置每天导入的数据不一样呢? 这时, 需要我们的 "input_parameter"
 
 #+BEGIN_SRC javascript
@@ -204,8 +209,8 @@ group by customer_id
 
 那么这个参数的格式就是 "20170312"这种格式了 (唯一修改的地方是: 把日期的格式化string由 'yyyy-MM-dd' 替换为 'yyyyMMdd'
 
-** 3. GreenPlum 实际示例
-*** 3.1 定义调度的数据表
+** 4. GreenPlum 实际示例
+*** 4.1 定义调度的数据表
 本次我们要导入的 "每天订单分析"数据是存储在 greenplum 数据库中, 并且该数据是每天早上5点钟来更新的. 那么, 我们可以首先在 Guandata_Workbench的 greenplum 子目录下, 先创建一个 命名为 "每天订单分析" 的子目录. 因为我们的 settings.json 文件中, 已经配置了如下的"定时器":
 
 #+BEGIN_SRC javascript
@@ -228,7 +233,7 @@ group by order_date, customer_id
 
 *NOTE: 这一步中一定要注意"数据表"的名字不会和现有表冲突. Workbench上传数据时, 会根据"数据表"名字来判断其是否已经存在, 如果已经存在, 则只做更新操作, 不会再新建表*
 
-*** 3.2 配置主键 (去重)
+*** 4.2 配置主键 (去重)
 因为定时任务执行是, 每天都会更新数据, 这样就会有以下情况出现:
   1. 对于同一个数据源, 有时候数值统计的sql有问题, 需要重新跑一下来覆盖之前的数据
   2. 数据在每天的上传时会有叠加的部分(比如: 每天都是统计前一周的每日数据)
@@ -252,7 +257,7 @@ group by order_date, customer_id
 
 本节配置好了以后, 即使同样的sql执行多次, 其结果也不会有重复.
 
-*** 3.3 补之前的数据
+*** 4.3 补之前的数据
 有了上面2步, 我们就可以等明天触发器调度时, 来自动导入前一天的数据了. 但是我们经常还需要把之前的一段时间的历史数据导入到系统中. 那么, 做法也很简单, 在相同目录下(本例子中为:  "Guandata_Workbench/greenplum/每天订单分析"), 新建一个 "fill_data.once.sql", 其内容是:
 
 #+BEGIN_SRC sql
@@ -266,7 +271,7 @@ group by order_date, customer_id
 
 *提示: 需要在输入完所有的sql后, 再保存为 .once.sql*, 因为, 系统会时时刻刻监视着这些目录下的 以".once.sql"结尾的文件, 如果发现了, 则马上会执行该sql. 如果执行完, 会把这个文件的后缀由 ".once.sql" 改为: ".once.sql_FINISHED" 或者 ".once.sql_FAILED"
 
-*** 3.4 上传时全量覆盖之前的数据 (请小心操作)
+*** 4.4 上传时全量覆盖之前的数据 (请小心操作)
 有的时候, 我们需要在本次上传数据前, 提前清空掉之前的数据, 而用本次上传的数据全量覆盖 (类似于sql中的 truncate table, 但是table本身的schema是不会变化的)
 
 这时, 需要对于该表的settings.json中增加一个 overwriteExistingData 参数
@@ -282,9 +287,9 @@ group by order_date, customer_id
 }
 #+END_SRC
 
-** 4. 导入Excel/CSV文件
+** 5. 导入Excel/CSV文件
 和 "3. GreenPlum 实际示例" 中类似, 在 csv/excel 子目录下, 也可以先新建一个子目录, 来代表要上传的数据Table的名字, 然后把之前的csv文件直接放到该目录下来马上导入该文件到观数
-** 5. 用Card内容作为数据源
+** 6. 用Card内容作为数据源
 和 "3. GreenPlum实际示例"类似, 支持马上导入 card内容(once), 和定时调度 (schedule)
 
 同样需要配置主键(去重)等.
@@ -294,7 +299,7 @@ group by order_date, customer_id
   2. 马上执行的任务是  your_card_id.once.card  文件, 文件内容为空就行.  需要把 `your_card_id` 替换为你的已经存在的card
   3. 对于定时调度. 可能需要配置另一个 schedule trigger, 比如: 原始一般导入文件都是 "daily" 这个trigger下(比如: 早上5点调度).  则可以新建一个trigger "daily_plus_1_hour", 让其在6点钟执行, 所以, 这时, 实际的空文件名字为:   your_card_id.daily_plus_1_hour.card
 
-** 6. FAQ
+** 7. FAQ
 *** FAQ 1. 如果我有多个 GreenPlum 数据库, 怎么办?
 Q: 因为 Guandata_Workbench 下的settings.json文件中, 只能配置一个 GreenPlum 数据库, 那我要是有多个数据库要导入怎么办?
 
