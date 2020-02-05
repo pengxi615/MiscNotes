@@ -2,13 +2,14 @@
 
 ** 1. 工具介绍
 Workbench是独立部署的数据同步客户端，可将Excel文件、内网数据库中的数据自动智能地传送到观远数据平台, 即Workbench可扮演企业内网与私有化部署的观远BI平台或者观远SaaS平台桥梁角色，以满足企业的数据安全性等要求。
+
 ![Image text](https://github.com/pengxi615/MiscNotes/blob/master/img/role_of_Workbench.png)
 
 Workbench主要功能包括以下：
-  1.定时同步数据
-  2.替换数据
-  3.增量更新数据
-  4.丰富的模版，按需导入数据
+	1.定时同步数据
+	2.替换数据
+	3.增量更新数据
+	4.丰富的模版，按需导入数据
 
 Workbench的使用场景：
 在观远BI平台Smart ETL模块研发完成之前，Workbench是我们作为数据抽取功能的替代方案。现在更多用户选择Smart ETL，如需了解Smart ETL请访问观远帮助中心或联系您的商业智能解决方案顾问。
